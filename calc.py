@@ -30,6 +30,8 @@ else:
 	stdout.flush()
 	a = ""
 	cursor = 0
+	history = [""]
+	index = 0
 	while True:
 		c = stdin.read(1)[0]
 		co = ord(c)
@@ -45,40 +47,61 @@ else:
 			if t.is_alive():
 				# If it's a real escape, exit
 				break
-		elif co == 68: # LEFT ARROW
-			cursor -= 1
-		elif co == 67: # RIGHT ARROW
-			cursor += 1
+			else:
+				continue
+
 		elif co == 13: # ENTER
+			if a:
+				history.append(a)
+			index = len(history)
 			stdout.write("\n\r")
 			calculate(a)
 			a = ""
 			cursor = 0
-		elif co == 127: # BACKSPACE
-			if cursor > 0:
-				a = a[:cursor-1] + a[cursor:]
-				cursor -= 1
-		elif co == 126: # DEL
-			# In UNIX it's actually 2 byes that we have to remove
-			a = a[:cursor-1] + a[cursor+1:]
-			cursor -= 1
-		elif co == 72: # HOME
-			cursor = 0
-		elif co == 70: # END
-			cursor = len(a)
 		else:
-			a = a[:cursor] + c + a[cursor:]
-			cursor += 1
+			stdout.write("\r")
+			stdout.write(" " * (len(a)+5))
+			stdout.write("\r")
+			stdout.write(">>> ")
+
+			if co == 68: # LEFT ARROW
+				cursor -= 1
+			elif co == 67: # RIGHT ARROW
+				cursor += 1
+			elif co == 127: # BACKSPACE
+				if cursor > 0:
+					a = a[:cursor-1] + a[cursor:]
+					cursor -= 1
+			elif co == 126: # DEL
+				# In UNIX it's actually 2 byes that we have to remove
+				a = a[:cursor-1] + a[cursor+1:]
+				cursor -= 1
+			elif co == 72: # HOME
+				cursor = 0
+			elif co == 70: # END
+				cursor = len(a)
+			elif co == 65: # UP ARROW
+				if index > 0:
+					index -= 1
+
+				a = history[index]
+			elif co == 66: # DOWN ARROW
+				if index < len(history):
+					index += 1
+
+				if index < len(history):
+					a = history[index]
+				else:
+					a = ""
+			else:
+				a = a[:cursor] + c + a[cursor:]
+				cursor += 1
 
 		if cursor < 0:
 			cursor = 0
 		if cursor > len(a):
 			cursor = len(a)
 
-		stdout.write("\r")
-		stdout.write(" " * (len(a)+6))
-		stdout.write("\r")
-		stdout.write(">>> ")
 		if DEBUG:
 			stdout.write(str(list(map(ord,a))))
 		else:
