@@ -62,6 +62,10 @@ else:
 			# In UNIX it's actually 2 byes that we have to remove
 			a = a[:cursor-1] + a[cursor+1:]
 			cursor -= 1
+		elif co == 72: # HOME
+			cursor = 0
+		elif co == 70: # END
+			cursor = len(a)
 		else:
 			a = a[:cursor] + c + a[cursor:]
 			cursor += 1
